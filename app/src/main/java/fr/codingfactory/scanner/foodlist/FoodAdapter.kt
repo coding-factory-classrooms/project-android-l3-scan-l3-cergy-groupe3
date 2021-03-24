@@ -3,6 +3,7 @@ package fr.codingfactory.scanner.foodlist
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.squareup.picasso.Picasso
 import fr.codingfactory.scanner.databinding.ItemFoodBinding
 import fr.codingfactory.scanner.models.Food
 
@@ -23,7 +24,7 @@ class FoodAdapter(private var foods: List<Food>): RecyclerView.Adapter<FoodAdapt
             titleTextView.text = food.title
             dateTextView.text = food.scanDate
             hourTextView.text = food.scanHour
-            foodImageView.setImageResource(food.foodImageId)
+            Picasso.get().load(food.foodImageUrl).into(foodImageView);
         }
     }
 

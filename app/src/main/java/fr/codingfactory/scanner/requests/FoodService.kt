@@ -1,12 +1,15 @@
 package fr.codingfactory.scanner.requests
 
-import fr.codingfactory.scanner.models.Food
+import fr.codingfactory.scanner.models.FoodWrapperApi
 import retrofit2.http.GET
 import retrofit2.Call
+import retrofit2.http.Path
 
 interface FoodService {
-    @GET()
-    fun foodInformation(): Call<Food>
+
+    @GET("v0/product/{barcode}.json")
+    fun foodInformation(@Path("barcode") barcode: String): Call<FoodWrapperApi>
+
 }
 
 
