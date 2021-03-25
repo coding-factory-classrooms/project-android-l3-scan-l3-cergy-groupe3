@@ -4,10 +4,10 @@ import retrofit2.http.GET
 import retrofit2.Call
 import retrofit2.http.Path
 
-interface FoodService {
+interface ItemService {
 
     @GET("v0/product/{barcode}.json")
-    fun foodInformation(@Path("barcode") barcode: String): Call<FoodWrapperApi>
+    fun itemInformation(@Path("barcode") barcode: String): Call<ItemWrapperApi>
 
 }
 

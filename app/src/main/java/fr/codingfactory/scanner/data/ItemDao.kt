@@ -10,9 +10,9 @@ import androidx.room.Query
 interface ItemDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun addItem(item: Item)
+    fun addItem(item: Item)
 
     @Query("SELECT * FROM item_table ORDER BY id ASC")
-    fun readAllData(): LiveData<List<Item>>
+    fun readAllData(): List<Item>
 
 }

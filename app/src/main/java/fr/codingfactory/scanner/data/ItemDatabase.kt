@@ -12,11 +12,11 @@ abstract class ItemDatabase : RoomDatabase() {
 
     companion object {
         @Volatile
-        private var INSTANCE : ItemDatabase? = null
+        private var INSTANCE: ItemDatabase? = null
 
         fun getDatabase(context: Context): ItemDatabase {
             val tempInstance = INSTANCE
-            if(tempInstance != null) {
+            if (tempInstance != null) {
                 return tempInstance
             }
 
@@ -26,7 +26,9 @@ abstract class ItemDatabase : RoomDatabase() {
                     ItemDatabase::class.java,
                     "item_database"
 
-                ).build()
+                )
+                    .allowMainThreadQueries()
+                    .build()
                 INSTANCE = instance
 
                 return instance

@@ -7,7 +7,7 @@ import fr.codingfactory.scanner.data.Item
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-data class FoodWrapperApi(val product: ProductApi)
+data class ItemWrapperApi(val product: ProductApi)
 
 data class ProductApi(
     val product_name: String,
@@ -17,8 +17,8 @@ data class ProductApi(
     )
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun mapFoodWrapperApiToFood(wrapperApi: FoodWrapperApi): Item {
-    Log.i("test", "mapFoodWrapperApiToFood:$wrapperApi ")
+fun mapItemWrapperApiToItem(wrapperApi: ItemWrapperApi): Item {
+    Log.i("test", "mapItemWrapperApiToItem:$wrapperApi ")
     return Item(
         0,
             wrapperApi.product.product_name,

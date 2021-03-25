@@ -2,6 +2,7 @@ package fr.codingfactory.scanner.foodlist
 
 import android.app.Activity
 import android.content.ContentValues.TAG
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import me.dm7.barcodescanner.zxing.ZXingScannerView
@@ -28,10 +29,16 @@ class FoodScanner : Activity(), ZXingScannerView.ResultHandler {
     }
 
     override fun handleResult(rawResult: Result) {
-        Log.v(TAG, rawResult.getText())
-        Log.v(TAG, rawResult.getBarcodeFormat().toString()
-        )
+        Log.i(TAG, rawResult.text)
 
-        mScannerView!!.resumeCameraPreview(this)
+        if (rawResult.text != null) {
+            var intent = Intent()
+            intent.putExtra("barcode", rawResult.text)
+            setResult(Activity.RESULT_OK, intent)
+            finish()
+        } else {
+            mScannerView!!.resumeCameraPreview(this)
+        }
+
     }
 }

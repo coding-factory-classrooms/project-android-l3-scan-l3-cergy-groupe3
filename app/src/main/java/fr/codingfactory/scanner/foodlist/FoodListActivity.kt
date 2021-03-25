@@ -1,104 +1,63 @@
 package fr.codingfactory.scanner.foodlist
 
+import android.app.Activity
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import fr.codingfactory.scanner.data.Item
-import fr.codingfactory.scanner.data.ItemViewModel
+import fr.codingfactory.scanner.data.ItemDatabase
 import fr.codingfactory.scanner.databinding.ActivityFoodBinding
-import fr.codingfactory.scanner.requests.FoodService
-import fr.codingfactory.scanner.requests.FoodWrapperApi
-import fr.codingfactory.scanner.requests.mapFoodWrapperApiToFood
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.moshi.MoshiConverterFactory
+import fr.codingfactory.scanner.requests.RetrofitClient
+
+private const val TAG = "FoodListActivity"
 
 class FoodListActivity : AppCompatActivity(), FoodAdapter.OnItemClickListener {
 
     private val model: FoodListViewModel by viewModels()
+    private val resultCode = 3
+
+
     private lateinit var binding: ActivityFoodBinding
     private lateinit var adapter: FoodAdapter
-
-    private lateinit var mItemViewModel : ItemViewModel
-    private lateinit var itemObject : Item
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityFoodBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        Log.i(TAG, "onCreate: ${model.getState().value}")
 
+        model.itemDao = ItemDatabase.getDatabase(this).itemDao()
+        model.service = RetrofitClient.itemService
 
-        //ToDo: Déplacer
-
-        val url = "https://world.openfoodfacts.org/api/"
-
-        val logging = HttpLoggingInterceptor()
-        logging.setLevel(HttpLoggingInterceptor.Level.BASIC)
-        val client = OkHttpClient.Builder()
-            .addInterceptor(logging)
-            .build()
-
-        val retrofit = Retrofit.Builder()
-            .baseUrl(url)
-            .client(client)
-            .addConverterFactory(MoshiConverterFactory.create())
-            .build()
-
-        val service = retrofit.create(FoodService::class.java)
-
-        val testRequest = service.foodInformation("9002490205973")
-
-        testRequest.enqueue(object : Callback<FoodWrapperApi> {
-            @RequiresApi(Build.VERSION_CODES.O)
-            override fun onResponse(
-                call: Call<FoodWrapperApi>,
-                response: Response<FoodWrapperApi>
-            ) {
-                val test = response.body()
-
-                if (test != null) {
-
-                    itemObject = mapFoodWrapperApiToFood(FoodWrapperApi(product = response.body()!!.product))
-                    mItemViewModel = ViewModelProvider(this@FoodListActivity).get(ItemViewModel::class.java)
-                    mItemViewModel.readAllData.observe(this@FoodListActivity, Observer { item ->
-                        adapter.updateDataSet(item)
-                    })
-
-                    insertDataToDatabase()
-
-
-                    Log.i("FoodListActivity", "onResponse: $itemObject")
-
-                }
-            }
-
-            override fun onFailure(call: Call<FoodWrapperApi>, t: Throwable) {
-                Log.i("TEST123", "onFailure: KO")
-            }
-        })
-
-
-        model.getItemsLiveData().observe(this, Observer { foods -> updateFoods(foods!!) })
+        model.getState().observe(this, Observer { updateItems(it!!) })
 
         adapter = FoodAdapter(listOf(), this)
 
         binding.foodRecyclerView.adapter = adapter
         binding.foodRecyclerView.layoutManager = LinearLayoutManager(this)
 
-        model.loadItems()
+        val launchSecondActivity = 1
+
+        val intent = Intent(this, FoodScanner::class.java)
+        startActivityForResult(intent, launchSecondActivity)
+
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        Log.i(TAG, "onActivityResult: blablabla", )
+
+        if (resultCode == Activity.RESULT_OK) {
+            //Log.i(TAG, "onActivityResult: ${data?.getStringExtra("barcode")}", )
+            model.getFood(data?.getStringExtra("barcode")!!)
+        }
+
     }
 
     override fun onItemClick(position: Int) {
@@ -106,30 +65,29 @@ class FoodListActivity : AppCompatActivity(), FoodAdapter.OnItemClickListener {
         navigateToDetail(position)
     }
 
-    private fun insertDataToDatabase() {
+    private fun updateItems(state: FoodListViewModelState) {
+        Log.i(TAG, "updateFoods: $state")
 
-        val item = Item(
-            0,
-            itemObject.title,
-            itemObject.scanDate,
-            itemObject.scanHour,
-            itemObject.itemImageUrl,
-            itemObject.nutrition_grades,
-            itemObject.ingredients_text_fr
-        )
-        mItemViewModel.addItem(item)
+        when (state) {
+            is FoodListViewModelState.Failure -> {
+                Toast.makeText(this, state.errorMessage, Toast.LENGTH_LONG).show()
+            }
 
-        Toast.makeText(this, "YACINE T BOOOOOOOOOOOOOOOOO", Toast.LENGTH_LONG).show()
+            FoodListViewModelState.Loading -> {
 
+            }
+
+            is FoodListViewModelState.LoadedItems -> {
+                Toast.makeText(this, "Ajout en base réussi", Toast.LENGTH_LONG).show()
+                Log.i(TAG, "updateFoods: SUCCESS")
+                adapter.updateDataSet(state.items)
+            }
+        }
     }
 
-    private fun updateFoods(items: List<Item>) {
-        adapter.updateDataSet(items)
-    }
-
-    private fun navigateToDetail(position: Int){
+    private fun navigateToDetail(position: Int) {
         val intent = Intent(this, DetailActivity::class.java)
-        intent.putExtra("item",adapter.getItems()[position])
+        intent.putExtra("item", adapter.getItems()[position])
         startActivity(intent)
     }
 }
