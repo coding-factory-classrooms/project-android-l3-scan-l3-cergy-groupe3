@@ -4,10 +4,10 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
+import fr.codingfactory.scanner.data.Item
 import fr.codingfactory.scanner.databinding.ItemFoodBinding
-import fr.codingfactory.scanner.models.Food
 
-class FoodAdapter(private var foods: List<Food>): RecyclerView.Adapter<FoodAdapter.ViewHolder>() {
+class FoodAdapter(private var items: List<Item>): RecyclerView.Adapter<FoodAdapter.ViewHolder>() {
     class ViewHolder(val binding: ItemFoodBinding) : RecyclerView.ViewHolder(binding.root){
 
     }
@@ -19,18 +19,19 @@ class FoodAdapter(private var foods: List<Food>): RecyclerView.Adapter<FoodAdapt
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val food = foods[position]
+        val item = items[position]
         with(holder.binding){
-            titleTextView.text = food.title
-            dateTextView.text = food.scanDate
-            hourTextView.text = food.scanHour
-            Picasso.get().load(food.foodImageUrl).into(foodImageView);
+            titleTextView.text = item.title
+            dateTextView.text = item.scanDate
+            hourTextView.text = item.scanHour
+            Picasso.get().load(item.itemImageUrl).into(foodImageView);
         }
     }
 
-    override fun getItemCount(): Int = foods.size
-    fun updateDataSet(foods: List<Food>) {
-        this.foods = foods
+    override fun getItemCount(): Int = items.size
+
+    fun updateDataSet(items: List<Item>) {
+        this.items = items
         notifyDataSetChanged()
     }
 }

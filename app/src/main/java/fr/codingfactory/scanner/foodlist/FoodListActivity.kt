@@ -3,16 +3,19 @@ package fr.codingfactory.scanner.foodlist
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import fr.codingfactory.scanner.data.Item
+import fr.codingfactory.scanner.data.ItemViewModel
 import fr.codingfactory.scanner.databinding.ActivityFoodBinding
-import fr.codingfactory.scanner.models.Food
-import fr.codingfactory.scanner.models.FoodWrapperApi
-import fr.codingfactory.scanner.models.mapFoodWrapperApiToFood
 import fr.codingfactory.scanner.requests.FoodService
+import fr.codingfactory.scanner.requests.FoodWrapperApi
+import fr.codingfactory.scanner.requests.mapFoodWrapperApiToFood
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
@@ -20,14 +23,15 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import java.util.logging.Level
-
 
 class FoodListActivity : AppCompatActivity() {
 
     private val model: FoodListViewModel by viewModels()
     private lateinit var binding: ActivityFoodBinding
     private lateinit var adapter: FoodAdapter
+
+    private lateinit var mItemViewModel : ItemViewModel
+    private lateinit var itemObject : Item
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,7 +56,7 @@ class FoodListActivity : AppCompatActivity() {
 
         val service = retrofit.create(FoodService::class.java)
 
-        val testRequest = service.foodInformation("5449000000996")
+        val testRequest = service.foodInformation("3274080005003")
 
         testRequest.enqueue(object : Callback<FoodWrapperApi> {
             @RequiresApi(Build.VERSION_CODES.O)
@@ -63,14 +67,17 @@ class FoodListActivity : AppCompatActivity() {
                 val test = response.body()
 
                 if (test != null) {
-                    val productName = response.body()!!.product.product_name
-                    val imageUrl = response.body()!!.product.image_url
 
-//                    Log.i("TEST123", "onResponse: $productName // $imageUrl")
+                    itemObject = mapFoodWrapperApiToFood(FoodWrapperApi(product = response.body()!!.product))
+                    mItemViewModel = ViewModelProvider(this@FoodListActivity).get(ItemViewModel::class.java)
+                    mItemViewModel.readAllData.observe(this@FoodListActivity, Observer { item ->
+                        adapter.updateDataSet(item)
+                    })
 
-                    val test11 = mapFoodWrapperApiToFood(FoodWrapperApi(product = response.body()!!.product))
+                    insertDataToDatabase()
 
-                    Log.i("FoodListActivity", "onResponse: $test11")
+
+                    Log.i("FoodListActivity", "onResponse: $itemObject")
 
                 }
             }
@@ -81,17 +88,26 @@ class FoodListActivity : AppCompatActivity() {
         })
 
 
-        model.getFoodsLiveData().observe(this, Observer { foods -> updateFoods(foods!!) })
+        model.getItemsLiveData().observe(this, Observer { foods -> updateFoods(foods!!) })
 
         adapter = FoodAdapter(listOf())
 
         binding.foodRecyclerView.adapter = adapter
         binding.foodRecyclerView.layoutManager = LinearLayoutManager(this)
 
-        model.loadFoods()
+        model.loadItems()
     }
 
-    private fun updateFoods(foods: List<Food>) {
-        adapter.updateDataSet(foods)
+    private fun insertDataToDatabase() {
+
+        val item = Item(0, itemObject.title, itemObject.scanDate, itemObject.scanHour, itemObject.itemImageUrl)
+        mItemViewModel.addItem(item)
+
+        Toast.makeText(this, "YACINE T BOOOOOOOOOOOOOOOOO", Toast.LENGTH_LONG).show()
+
+    }
+
+    private fun updateFoods(items: List<Item>) {
+        adapter.updateDataSet(items)
     }
 }

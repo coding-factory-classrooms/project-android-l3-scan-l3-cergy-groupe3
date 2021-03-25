@@ -27,6 +27,8 @@ class FoodScanner : AppCompatActivity() {
             intentIntegrator.setPrompt("SCAN")
             intentIntegrator.setBarcodeImageEnabled(false)
             intentIntegrator.initiateScan()
+            intentIntegrator.setOrientationLocked(false)
+
         }
     }
     override fun onActivityResult(

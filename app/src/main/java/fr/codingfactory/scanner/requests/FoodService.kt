@@ -1,6 +1,5 @@
 package fr.codingfactory.scanner.requests
 
-import fr.codingfactory.scanner.models.FoodWrapperApi
 import retrofit2.http.GET
 import retrofit2.Call
 import retrofit2.http.Path
