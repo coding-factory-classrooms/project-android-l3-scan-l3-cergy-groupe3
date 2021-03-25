@@ -1,5 +1,6 @@
 package fr.codingfactory.scanner.foodlist
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -24,7 +25,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
-class FoodListActivity : AppCompatActivity() {
+class FoodListActivity : AppCompatActivity(), FoodAdapter.OnItemClickListener {
 
     private val model: FoodListViewModel by viewModels()
     private lateinit var binding: ActivityFoodBinding
@@ -38,7 +39,9 @@ class FoodListActivity : AppCompatActivity() {
         binding = ActivityFoodBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        //ToDo:
+
+
+        //ToDo: Déplacer
 
         val url = "https://world.openfoodfacts.org/api/"
 
@@ -56,7 +59,7 @@ class FoodListActivity : AppCompatActivity() {
 
         val service = retrofit.create(FoodService::class.java)
 
-        val testRequest = service.foodInformation("3274080005003")
+        val testRequest = service.foodInformation("9002490205973")
 
         testRequest.enqueue(object : Callback<FoodWrapperApi> {
             @RequiresApi(Build.VERSION_CODES.O)
@@ -90,7 +93,7 @@ class FoodListActivity : AppCompatActivity() {
 
         model.getItemsLiveData().observe(this, Observer { foods -> updateFoods(foods!!) })
 
-        adapter = FoodAdapter(listOf())
+        adapter = FoodAdapter(listOf(), this)
 
         binding.foodRecyclerView.adapter = adapter
         binding.foodRecyclerView.layoutManager = LinearLayoutManager(this)
@@ -98,9 +101,22 @@ class FoodListActivity : AppCompatActivity() {
         model.loadItems()
     }
 
+    override fun onItemClick(position: Int) {
+        adapter.notifyItemChanged(position)
+        navigateToDetail(position)
+    }
+
     private fun insertDataToDatabase() {
 
-        val item = Item(0, itemObject.title, itemObject.scanDate, itemObject.scanHour, itemObject.itemImageUrl)
+        val item = Item(
+            0,
+            itemObject.title,
+            itemObject.scanDate,
+            itemObject.scanHour,
+            itemObject.itemImageUrl,
+            itemObject.nutrition_grades,
+            itemObject.ingredients_text_fr
+        )
         mItemViewModel.addItem(item)
 
         Toast.makeText(this, "YACINE T BOOOOOOOOOOOOOOOOO", Toast.LENGTH_LONG).show()
@@ -109,5 +125,11 @@ class FoodListActivity : AppCompatActivity() {
 
     private fun updateFoods(items: List<Item>) {
         adapter.updateDataSet(items)
+    }
+
+    private fun navigateToDetail(position: Int){
+        val intent = Intent(this, DetailActivity::class.java)
+        intent.putExtra("item",adapter.getItems()[position])
+        startActivity(intent)
     }
 }

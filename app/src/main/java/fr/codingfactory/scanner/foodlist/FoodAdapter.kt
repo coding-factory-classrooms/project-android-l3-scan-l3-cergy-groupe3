@@ -1,16 +1,33 @@
 package fr.codingfactory.scanner.foodlist
 
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import fr.codingfactory.scanner.data.Item
 import fr.codingfactory.scanner.databinding.ItemFoodBinding
 
-class FoodAdapter(private var items: List<Item>): RecyclerView.Adapter<FoodAdapter.ViewHolder>() {
-    class ViewHolder(val binding: ItemFoodBinding) : RecyclerView.ViewHolder(binding.root){
+class FoodAdapter(
+    private var items: List<Item>,
+    private val listener: OnItemClickListener
+): RecyclerView.Adapter<FoodAdapter.ViewHolder>() {
+    inner class ViewHolder(val binding: ItemFoodBinding) : RecyclerView.ViewHolder(binding.root), View.OnClickListener{
 
+        init {
+            itemView.setOnClickListener(this)
+        }
+        override fun onClick(v: View?) {
+            val position = adapterPosition
+            if (position != RecyclerView.NO_POSITION){
+                listener.onItemClick(position)
+            }
+        }
     }
+     interface OnItemClickListener{
+         fun onItemClick(position: Int)
+     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -33,5 +50,9 @@ class FoodAdapter(private var items: List<Item>): RecyclerView.Adapter<FoodAdapt
     fun updateDataSet(items: List<Item>) {
         this.items = items
         notifyDataSetChanged()
+    }
+
+    fun getItems(): List<Item> {
+        return items
     }
 }
