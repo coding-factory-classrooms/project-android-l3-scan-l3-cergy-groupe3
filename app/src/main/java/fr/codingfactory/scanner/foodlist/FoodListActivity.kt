@@ -1,14 +1,17 @@
 package fr.codingfactory.scanner.foodlist
 
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import fr.codingfactory.scanner.databinding.ActivityFoodBinding
 import fr.codingfactory.scanner.models.Food
 import fr.codingfactory.scanner.models.FoodWrapperApi
+import fr.codingfactory.scanner.models.mapFoodWrapperApiToFood
 import fr.codingfactory.scanner.requests.FoodService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -52,6 +55,7 @@ class FoodListActivity : AppCompatActivity() {
         val testRequest = service.foodInformation("5449000000996")
 
         testRequest.enqueue(object : Callback<FoodWrapperApi> {
+            @RequiresApi(Build.VERSION_CODES.O)
             override fun onResponse(
                 call: Call<FoodWrapperApi>,
                 response: Response<FoodWrapperApi>
@@ -62,16 +66,20 @@ class FoodListActivity : AppCompatActivity() {
                     val productName = response.body()!!.product.product_name
                     val imageUrl = response.body()!!.product.image_url
 
-                    Log.i("FoodListActivity", "onResponse: $productName // $imageUrl")
+//                    Log.i("TEST123", "onResponse: $productName // $imageUrl")
+
+                    val test11 = mapFoodWrapperApiToFood(FoodWrapperApi(product = response.body()!!.product))
+
+                    Log.i("FoodListActivity", "onResponse: $test11")
+
                 }
             }
 
             override fun onFailure(call: Call<FoodWrapperApi>, t: Throwable) {
-                error("KO")
+                Log.i("TEST123", "onFailure: KO")
             }
         })
 
-        //ToDo:
 
         model.getFoodsLiveData().observe(this, Observer { foods -> updateFoods(foods!!) })
 
