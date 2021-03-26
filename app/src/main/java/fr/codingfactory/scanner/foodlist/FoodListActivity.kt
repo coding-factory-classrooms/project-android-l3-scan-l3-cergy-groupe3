@@ -4,12 +4,12 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import fr.codingfactory.scanner.data.ItemDatabase
 import fr.codingfactory.scanner.R
 import fr.codingfactory.scanner.databinding.ActivityFoodBinding
@@ -31,10 +31,13 @@ class FoodListActivity : AppCompatActivity(), FoodAdapter.OnItemClickListener {
         binding = ActivityFoodBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val button = findViewById<Button>(R.id.button2)
-        button.setOnClickListener{
-            val intent = Intent(this, FoodScanner::class.java)
-            startActivity(intent)
+
+        findViewById<BottomNavigationView>(R.id.bottom_navigation).setOnNavigationItemSelectedListener {
+            when(it.itemId){
+                R.id.ic_scan -> startActivity(Intent(this, FoodScanner::class.java))
+                R.id.ic_home -> startActivity(Intent(this, FoodListActivity::class.java))
+            }
+            true
         }
 
         Log.i(TAG, "onCreate: ${model.getState().value}")
