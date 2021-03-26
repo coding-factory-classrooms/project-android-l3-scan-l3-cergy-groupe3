@@ -1,11 +1,13 @@
 package fr.codingfactory.scanner.foodlist
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import com.squareup.picasso.Picasso
 import fr.codingfactory.scanner.R
 import fr.codingfactory.scanner.data.Item
+import fr.codingfactory.scanner.data.ItemDao
 import fr.codingfactory.scanner.databinding.ActivityDetailBinding
 import kotlin.properties.Delegates
 
@@ -14,6 +16,7 @@ class DetailActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDetailBinding
     private var score by Delegates.notNull<Int>()
+    lateinit var itemDao : ItemDao
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,5 +40,19 @@ class DetailActivity : AppCompatActivity() {
             detailIngreTextView.text = item?.ingredients_text_fr
             nutriImageView.setImageResource(score)
         }
+
+        binding.deleteButton.setOnClickListener {
+            itemDao.deleteItem(item!!)
+            navigateToFoodListActivity()
+            finish()
+        }
+
+
+
+    }
+
+    private fun navigateToFoodListActivity() {
+        val intent = Intent(this, FoodListActivity::class.java)
+        startActivity(intent)
     }
 }

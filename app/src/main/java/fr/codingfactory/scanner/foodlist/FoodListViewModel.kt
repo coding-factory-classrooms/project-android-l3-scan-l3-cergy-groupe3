@@ -24,7 +24,7 @@ sealed class FoodListViewModelState(
 ) {
     object Loading : FoodListViewModelState()
     data class Failure(override val errorMessage: String) : FoodListViewModelState(errorMessage)
-    data class LoadedItems(val items : List<Item>) : FoodListViewModelState()
+    data class LoadedItems(val items: List<Item>) : FoodListViewModelState()
 }
 
 class FoodListViewModel : ViewModel() {
