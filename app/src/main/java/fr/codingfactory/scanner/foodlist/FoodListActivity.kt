@@ -42,7 +42,7 @@ class FoodListActivity : AppCompatActivity(), FoodAdapter.OnItemClickListener {
 
         model.loadItems()
 
-        findViewById<BottomNavigationView>(R.id.bottom_navigation).setOnNavigationItemSelectedListener {
+        binding.bottomNavigation.setOnNavigationItemSelectedListener {
             when (it.itemId) {
                 R.id.ic_scan -> {
                     val launchSecondActivity = 1
