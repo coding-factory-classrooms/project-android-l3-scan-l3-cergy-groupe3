@@ -3,6 +3,7 @@ package fr.codingfactory.scanner.foodlist
 import android.os.Build
 import android.text.TextUtils
 import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -88,11 +89,12 @@ class FoodListViewModel : ViewModel() {
             itemObject.scanDate,
             itemObject.scanHour,
             itemObject.itemImageUrl,
-            itemObject.nutrition_grades,
-            itemObject.ingredients_text_fr
+            itemObject.nutritionGrades,
+            itemObject.ingredientsTextFr
         )
 
         itemDao.addItem(item)
+
 
     }
 

@@ -4,14 +4,13 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import fr.codingfactory.scanner.data.ItemDatabase
 import fr.codingfactory.scanner.R
+import fr.codingfactory.scanner.data.ItemDatabase
 import fr.codingfactory.scanner.databinding.ActivityFoodBinding
 import fr.codingfactory.scanner.requests.RetrofitClient
 
@@ -20,8 +19,6 @@ private const val TAG = "FoodListActivity"
 class FoodListActivity : AppCompatActivity(), FoodAdapter.OnItemClickListener {
 
     private val model: FoodListViewModel by viewModels()
-    private val resultCode = 3
-
 
     private lateinit var binding: ActivityFoodBinding
     private lateinit var adapter: FoodAdapter
@@ -30,15 +27,6 @@ class FoodListActivity : AppCompatActivity(), FoodAdapter.OnItemClickListener {
         super.onCreate(savedInstanceState)
         binding = ActivityFoodBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-
-        findViewById<BottomNavigationView>(R.id.bottom_navigation).setOnNavigationItemSelectedListener {
-            when(it.itemId){
-                R.id.ic_scan -> startActivity(Intent(this, FoodScanner::class.java))
-                R.id.ic_home -> startActivity(Intent(this, FoodListActivity::class.java))
-            }
-            true
-        }
 
         Log.i(TAG, "onCreate: ${model.getState().value}")
 
@@ -52,20 +40,30 @@ class FoodListActivity : AppCompatActivity(), FoodAdapter.OnItemClickListener {
         binding.foodRecyclerView.adapter = adapter
         binding.foodRecyclerView.layoutManager = LinearLayoutManager(this)
 
-        val launchSecondActivity = 1
+        model.loadItems()
 
-        val intent = Intent(this, FoodScanner::class.java)
-        startActivityForResult(intent, launchSecondActivity)
+        findViewById<BottomNavigationView>(R.id.bottom_navigation).setOnNavigationItemSelectedListener {
+            when (it.itemId) {
+                R.id.ic_scan -> {
+                    val launchSecondActivity = 1
 
+                    val intent = Intent(this, FoodScanner::class.java)
+                    startActivityForResult(intent, launchSecondActivity)
+                }
+                R.id.ic_home -> {
+                    startActivity(Intent(this, FoodListActivity::class.java))
+                }
+            }
+            true
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        Log.i(TAG, "onActivityResult: blablabla", )
+        Log.i(TAG, "onActivityResult: blablabla")
 
         if (resultCode == Activity.RESULT_OK) {
-            //Log.i(TAG, "onActivityResult: ${data?.getStringExtra("barcode")}", )
             model.getFood(data?.getStringExtra("barcode")!!)
         }
 
@@ -81,7 +79,7 @@ class FoodListActivity : AppCompatActivity(), FoodAdapter.OnItemClickListener {
 
         when (state) {
             is FoodListViewModelState.Failure -> {
-                Toast.makeText(this, state.errorMessage, Toast.LENGTH_LONG).show()
+                //Toast.makeText(this, state.errorMessage, Toast.LENGTH_LONG).show()
             }
 
             FoodListViewModelState.Loading -> {
@@ -89,7 +87,6 @@ class FoodListActivity : AppCompatActivity(), FoodAdapter.OnItemClickListener {
             }
 
             is FoodListViewModelState.LoadedItems -> {
-                Toast.makeText(this, "Ajout en base réussi", Toast.LENGTH_LONG).show()
                 Log.i(TAG, "updateFoods: SUCCESS")
                 adapter.updateDataSet(state.items)
             }

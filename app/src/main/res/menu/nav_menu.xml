@@ -5,11 +5,11 @@
     <item
         android:id="@+id/ic_scan"
         android:icon="@drawable/ic_scan"
-        android:title="Scan"/>
+        android:title="Scanner" />
 
     <item
         android:id="@+id/ic_home"
-        android:icon="@drawable/ic_home"
-        android:title="Home"/>
+        android:icon="@android:drawable/ic_menu_sort_by_size"
+        android:title="Liste" />
 
 </menu>

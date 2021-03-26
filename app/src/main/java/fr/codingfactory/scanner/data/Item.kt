@@ -13,8 +13,8 @@ data class Item(
     val scanDate: String?,
     val scanHour: String?,
     val itemImageUrl: String?,
-    val nutrition_grades: String?,
-    val ingredients_text_fr: String?
+    val nutritionGrades: String?,
+    val ingredientsTextFr: String?
 ): Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readInt(),
@@ -33,8 +33,8 @@ data class Item(
         parcel.writeString(scanDate)
         parcel.writeString(scanHour)
         parcel.writeString(itemImageUrl)
-        parcel.writeString(nutrition_grades)
-        parcel.writeString(ingredients_text_fr)
+        parcel.writeString(nutritionGrades)
+        parcel.writeString(ingredientsTextFr)
     }
 
     override fun describeContents(): Int {
